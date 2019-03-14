@@ -12,11 +12,13 @@ Ejercicio 1
 
 //Declaracion de funciones
 void nombreUsuario(char *username);
+void idUsuario(int idUser);
 
 //Funcion principal
 int main (int argc, char **argv)
 {
 	char *uvalue = NULL;
+	char *ivalue = NULL;
 	int index;
 	int i;
 	int c;
@@ -25,7 +27,7 @@ int main (int argc, char **argv)
 	getopt() imprime un mensaje de diagnostico a stderr en el formato específico de la utilidad getops*/
 	opterr = 0;
 
-	while ((c = getopt (argc, argv, "u:")) != -1)
+	while ((c = getopt (argc, argv, "u:i:")) != -1)
 	{
 		// Podemos observar qué pasa con las variables externas que va gestionando
 	        //   getopt() durante las sucesivas llamadas.
@@ -34,14 +36,18 @@ int main (int argc, char **argv)
 
 		switch (c)
 		{
-			/*La opción -u/--username servirá para especificar el nombre de un usuario del sistema (p.ej. jfcaballero) del cual hay que mostrar la información correspondiente a
-			su estructura passwd.*/
+			/*La opción -u/--username servirá para especificar el nombre de un usuario del sistema (p.ej. jfcaballero) del cual hay que mostrar la información correspondiente a su estructura passwd.*/
 			case 'u':
-				uvalue = optarg; //En optarg se guarda el valor de argumento obligatorio que requiere c
+				uvalue = optarg; //En optarg se guarda el valor de argumento obligatorio que requiere u
+			break;
+
+			/*La opción -i/--useruid servirá para especiﬁcar el identiﬁcador de un usuario del sistema (p.ej. 17468) del cual hay que mostrar la información correspondiente a su estructura passwd . */
+			case 'i':
+				ivalue = optarg; //En optarg se guarda el valor de argumento obligatorio que requiere i
 			break;
 
 			case '?':
-				if (optopt == 'u') //Para el caso de que 'c' no tenga el argumento obligatorio.
+				if (optopt == 'u' || optopt == 'i') //Para el caso de que 'u' no tenga el argumento obligatorio.
 					fprintf(stderr, "La opcion %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
 				else if (isprint (optopt)) //Comprueba si el caracter es imprimible
 					fprintf (stderr, "Opción desconocida \"-%c\". Valor de opterr = %d\n", optopt, opterr);
@@ -51,12 +57,17 @@ int main (int argc, char **argv)
 			default:
 				abort();
 		}
-		printf("optind: %d, optarg: %s, optopt: %c, opterr: %d\n\n", optind, optarg, optopt, opterr);
+		//printf("optind: %d, optarg: %s, optopt: %c, opterr: %d\n\n", optind, optarg, optopt, opterr);
 	}
 
 	if (uvalue)
 	{
 		nombreUsuario(uvalue);
+	}
+
+	if (ivalue)
+	{
+		idUsuario(atoi(ivalue));
 	}
 
 	/*Controla las opciones introducidas por el usuario que no hayan sido procesadas.
@@ -70,7 +81,7 @@ int main (int argc, char **argv)
 	}
 
 	//Visualiza las opciones que se han activad, asi como sus argumentos
-	printf("\nuvalue = %s\n", uvalue);
+	printf("\nuvalue = %s, ivalue = %s\n", uvalue, ivalue);
 
 	return 0;
 }
@@ -81,17 +92,50 @@ void nombreUsuario(char *username)
 {
 	char *lgn = username;
 	struct passwd *pw;
-    	struct group *gr;
 
-	if ((lgn = getlogin()) == NULL || (pw = getpwnam(lgn)) == NULL)
+	if ((pw = getpwnam(lgn)) == NULL)
 	{
 		fprintf(stderr, "No se pudo recuperar la información de usuario\n");
     		exit(1);
 	}
+	else
+	{
+		printf("Nombre del usuario: %s\n", pw -> pw_gecos);
+		printf("Login: %s\n", pw->pw_name);
+	  	printf("Contraseña: %s\n", pw -> pw_passwd);
+		printf("Id del usuario: %d\n", pw -> pw_uid);
+		printf("Directorio HOME: %s\n", pw -> pw_dir);
+		printf("Interprete predeterminado:%s\n", (*pw).pw_shell);
+	}
 
-	printf("Nombre del usuario: %s\n", pw -> pw_gecos);
-  	printf("Contraseña: %s\n", pw -> pw_passwd);
-	printf("Id del usuario: %d\n", pw -> pw_uid);
-	printf("Directorio HOME: %s\n", pw -> pw_dir);
-	printf("Interprete predeterminado:%s\n", (*pw).pw_shell);
+}
+
+void idUsuario(int idUser)
+{
+	int lgn = idUser;
+	struct passwd *pw;
+
+	if ((pw = getpwuid(lgn)) == NULL)
+	{
+		fprintf(stderr, "No se pudo recuperar la información de usuario\n");
+    		exit(1);
+	}
+	else
+	{
+		printf("Nombre del usuario: %s\n", pw -> pw_gecos);
+		printf("Login: %s\n", pw->pw_name);
+	  	printf("Contraseña: %s\n", pw -> pw_passwd);
+		printf("Id del usuario: %d\n", pw -> pw_uid);
+		printf("Directorio HOME: %s\n", pw -> pw_dir);
+		printf("Interprete predeterminado:%s\n", (*pw).pw_shell);
+	}
+
+}
+
+void nombreGrupo(char *name)
+{
+	int 
+	struct group *gr;
+
+
 }
