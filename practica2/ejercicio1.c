@@ -2,9 +2,11 @@
 Alejandro Bermudez Lara
 Ejercicio 1
 */
-
+#include <getopt.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pwd.h>	//The pwd.h header shall provide a definition for struct passwd
@@ -13,21 +15,56 @@ Ejercicio 1
 //Declaracion de funciones
 void nombreUsuario(char *username);
 void idUsuario(int idUser);
+void nombreGrupo(char *name);
+void uidGrupo(int uid);
+void showAllSystemGroups();
+void showAllInfo(char *username);
+void showCurrentUserGroupInfo();
+void help();
 
 //Funcion principal
 int main (int argc, char **argv)
 {
 	char *uvalue = NULL;
 	char *ivalue = NULL;
+	char *gvalue = NULL;
+	int dvalue = 0;
+	int sflag = 0;
+	char *avalue = NULL;
+	int bflag = 0;
+	int hflag = 0;
 	int index;
 	int i;
 	int c;
+	char *user = getlogin();
+
+
+	/*Estructura a utilizar por getoptlong */
+	static struct option long_options[] =
+	{
+		/* Opciones que no van a actuar sobre un flag */
+		/* "opcion", recibe o no un argumento, 0,
+		   identificador de la opción */
+		{"username", required_argument, 0, 'u'},
+		{"useruid", required_argument, 0, 'i'},
+		{"groupname", required_argument, 0, 'g'},
+		{"groupuid", required_argument, 0, 'd'},
+		{"allgroups", no_argument, 0, 's'},
+		{"allinfo", required_argument, 0, 'a'},
+		{"bactive", no_argument, 0, 'b'},
+		{"help", no_argument, 0, 'h'},
+		/* Necesario para indicar el final de las opciones */
+		{0, 0, 0, 0}
+	};
+
+	/* getopt_long guardará el índice de la opción en esta variable. */
+	int option_index = 0;
 
 	/*Si no ponemos manualmente a cero la variable OPTERR y el primer caracter de optstring no es <:>,
 	getopt() imprime un mensaje de diagnostico a stderr en el formato específico de la utilidad getops*/
 	opterr = 0;
 
-	while ((c = getopt (argc, argv, "u:i:")) != -1)
+	while ((c = getopt_long (argc, argv, "u:i:g:d:sa:bh", long_options, &option_index)) != -1)
 	{
 		// Podemos observar qué pasa con las variables externas que va gestionando
 	        //   getopt() durante las sucesivas llamadas.
@@ -43,11 +80,36 @@ int main (int argc, char **argv)
 
 			/*La opción -i/--useruid servirá para especiﬁcar el identiﬁcador de un usuario del sistema (p.ej. 17468) del cual hay que mostrar la información correspondiente a su estructura passwd . */
 			case 'i':
-				ivalue = optarg; //En optarg se guarda el valor de argumento obligatorio que requiere i
+				ivalue = optarg;
+			break;
+
+			/*La opción -g/--groupname, servirá para especificar el nombre de un grupo del sistema (p.ej. adm) del cual hay que mostrar la información correspondiente a su estructura group (GID).*/
+			case 'g':
+				gvalue = optarg;
+			break;
+
+			case 'd':
+				dvalue = atoi(optarg);
+			break;
+
+			case 's':
+				sflag = 1;
+			break;
+
+			case 'a':
+				avalue = optarg;
+			break;
+
+			case 'b':
+				bflag = 1;
+			break;
+
+			case 'h':
+				hflag = 1;
 			break;
 
 			case '?':
-				if (optopt == 'u' || optopt == 'i') //Para el caso de que 'u' no tenga el argumento obligatorio.
+				if (optopt == 'u' || optopt == 'i' || optopt == 'g' || optopt == 'd' || optopt == 'a') //Para el caso de que 'u' no tenga el argumento obligatorio.
 					fprintf(stderr, "La opcion %c requiere un argumento. Valor de opterr = %d\n", optopt, opterr);
 				else if (isprint (optopt)) //Comprueba si el caracter es imprimible
 					fprintf (stderr, "Opción desconocida \"-%c\". Valor de opterr = %d\n", optopt, opterr);
@@ -64,10 +126,37 @@ int main (int argc, char **argv)
 	{
 		nombreUsuario(uvalue);
 	}
-
-	if (ivalue)
+	else if (ivalue)
 	{
 		idUsuario(atoi(ivalue));
+	}
+	else if (gvalue)
+	{
+		nombreGrupo(gvalue);
+	}
+	else if(dvalue)
+	{
+		uidGrupo(dvalue);
+	}
+	else if(sflag)
+	{
+		showAllSystemGroups();
+	}
+	else if(avalue)
+	{
+		showAllInfo(avalue);
+	}
+	else if(bflag)
+	{
+		showCurrentUserGroupInfo();
+	}
+	else if(hflag)
+	{
+		help();
+	}
+	else
+	{
+		showAllInfo(user);
 	}
 
 	/*Controla las opciones introducidas por el usuario que no hayan sido procesadas.
@@ -81,13 +170,13 @@ int main (int argc, char **argv)
 	}
 
 	//Visualiza las opciones que se han activad, asi como sus argumentos
-	printf("\nuvalue = %s, ivalue = %s\n", uvalue, ivalue);
+	printf("\nuvalue = %s, ivalue = %s, gvalue = %s, dvalue = %d, sflag = %d, avalue = %s, bflag = %d, hflag = %d\n", uvalue, ivalue, gvalue, dvalue, sflag, avalue, bflag, hflag);
 
 	return 0;
 }
 
 //Funciones
-//Funcion que servirá para especificar el usuario por nombre de usuario (p.ej. i82fecaj)
+//Funcion que servirá para especificar el usuario por nombre de usuario (p.ej. i82fecaj) del cual hay que mostrar la información correspondiente a su estructura passwd.
 void nombreUsuario(char *username)
 {
 	char *lgn = username;
@@ -95,7 +184,7 @@ void nombreUsuario(char *username)
 
 	if ((pw = getpwnam(lgn)) == NULL)
 	{
-		fprintf(stderr, "No se pudo recuperar la información de usuario\n");
+		fprintf(stderr, "No se pudo recuperar la información de usuario. Nombre de usuario erroneo\n");
     		exit(1);
 	}
 	else
@@ -110,32 +199,179 @@ void nombreUsuario(char *username)
 
 }
 
+//La opción -i/--useruid servirá para especificar el identificador de un usuario del sistema (p.ej. 17468) del cual hay que mostrar la información correspondiente a su estructura passwd .
 void idUsuario(int idUser)
 {
-	int lgn = idUser;
+	int id = idUser;
 	struct passwd *pw;
 
-	if ((pw = getpwuid(lgn)) == NULL)
+	if ((pw = getpwuid(id)) == NULL)
 	{
-		fprintf(stderr, "No se pudo recuperar la información de usuario\n");
-    		exit(1);
+		fprintf(stderr, "No se pudo recuperar la información de usuario. Identificador de usuario erroneo.\n");
+    		exit(EXIT_FAILURE);
 	}
 	else
 	{
+		printf("---------------\n");
 		printf("Nombre del usuario: %s\n", pw -> pw_gecos);
-		printf("Login: %s\n", pw->pw_name);
-	  	printf("Contraseña: %s\n", pw -> pw_passwd);
 		printf("Id del usuario: %d\n", pw -> pw_uid);
-		printf("Directorio HOME: %s\n", pw -> pw_dir);
-		printf("Interprete predeterminado:%s\n", (*pw).pw_shell);
+		printf("Contraseña: %s\n", pw -> pw_passwd);
+		printf("Carpeta Inicio: %s\n", pw -> pw_dir);
+		printf("Interprete por defecto:%s\n", (*pw).pw_shell);
+		printf("Login de usuario: %s\n", pw->pw_name);
+		printf("---------------\n");
 	}
 
 }
 
 void nombreGrupo(char *name)
 {
-	int 
+	char *groupName = name;
 	struct group *gr;
 
+	if ((gr = getgrnam(groupName)) == NULL )
+	{
+		fprintf(stderr, "Fue imposible recuperar la informacion del usuario. Nombre de grupo erroneo.\n");
+    		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		printf("Numero de grupo principal: %d\n", gr -> gr_gid);
+	}
+}
+
+void uidGrupo(int uid)
+{
+	int userID = uid;
+	struct group *gr;
+
+	if ((gr = getgrgid(userID)) == NULL )
+	{
+		fprintf(stderr, "Fue imposible recuperar la informacion del usuario. UID de grupo erroneo.\n");
+    		exit(1);
+	}
+	else
+	{
+		printf("Nombre de grupo principal: %s\n", gr -> gr_name);
+	}
+}
+
+void showAllSystemGroups()
+{
+	struct group *gr;
+
+	//The setgrent() function rewinds to the beginning of the group database, to allow repeated scans.
+	setgrent();
+
+	/*The  getgrent()  function  returns  a pointer to a structure containing the broken-out fields of a record in the group database (e.g., the local group file /etc/group, NIS, and LDAP).  The first time getgrent() is  called,  it  returns  the  first  entry; thereafter, it returns successive entries.*/
+	while (gr = getgrent())
+	{
+		printf("Nombre de grupo principal: %s\n", gr->gr_name);
+		printf("Numero de grupo principal: %d\n", gr -> gr_gid);
+		printf("---------------\n");
+
+	}
+
+	endgrent();
+
+}
+
+void showAllInfo(char *username)
+{
+	char *lgn = username;
+	struct passwd *pw;
+	struct group *gr;
+	char *lang = "LANG";
+
+	if(strstr(getenv("LANG"), "en_EN"))
+	{
+		if ((pw = getpwnam(lgn)) == NULL)
+		{
+			fprintf(stderr, "No se pudo recuperar la información de usuario. Nombre de usuario erroneo\n");
+	    		exit(1);
+		}
+		else
+		{
+			//información correspondiente a su estructura passwd
+			printf("---------------\n");
+			printf("Username: %s\n", pw -> pw_gecos);
+			printf("User ID: %d\n", pw -> pw_uid);
+			printf("Password: %s\n", pw -> pw_passwd);
+			printf("Home folder: %s\n", pw -> pw_dir);
+			printf("Default interpreter:%s\n", (*pw).pw_shell);
+			printf("User login: %s\n", pw->pw_name);
+
+			printf("\n");
+
+			//información correspondiente a su estructura group
+			printf("Main group number: %d\n", pw->pw_gid);
+			gr = getgrgid(pw->pw_gid);
+			printf("Main group name: %s\n", gr->gr_name);
+			printf("---------------\n");
+		}
+	}
+	else
+	{
+		if ((pw = getpwnam(lgn)) == NULL)
+		{
+			fprintf(stderr, "No se pudo recuperar la información de usuario. Nombre de usuario erroneo\n");
+	    		exit(1);
+		}
+		else
+		{
+			//información correspondiente a su estructura passwd
+			printf("---------------\n");
+			printf("Nombre del usuario: %s\n", pw -> pw_gecos);
+			printf("Id del usuario: %d\n", pw -> pw_uid);
+			printf("Contraseña: %s\n", pw -> pw_passwd);
+			printf("Carpeta Inicio: %s\n", pw -> pw_dir);
+			printf("Interprete por defecto:%s\n", (*pw).pw_shell);
+			printf("Login de usuario: %s\n", pw->pw_name);
+
+			printf("\n");
+
+			//información correspondiente a su estructura group
+			printf("Número de grupo principal: %d\n", pw->pw_gid);
+			gr = getgrgid(pw->pw_gid);
+			printf("Nombre del grupo principal: %s\n", gr->gr_name);
+			printf("---------------\n");
+		}
+	}
+
+}
+
+void showCurrentUserGroupInfo()
+{
+	char *lgn;
+	struct passwd *pw;
+	struct group *gr;
+
+	if((lgn = getlogin()) == NULL || (pw = getpwnam(lgn)) == NULL)
+	{
+		fprintf(stderr, "No se pudo recuperar la información de usuario actual.\n");
+		exit(1);
+	}
+
+	printf("Número de grupo principal: %d\n", pw->pw_gid);
+
+	/*Obtenemos la estructura de información del grupo
+	a través del número de grupo al que pertenece el usuario*/
+	gr = getgrgid(pw->pw_gid);
+
+	printf("Nombre del grupo principal: %s\n", gr->gr_name);
+}
+
+void help()
+{
+	printf("\tUso del programa: ejercicio1 [opciones]\n");
+	printf("\tOpciones:\n");
+	printf("\t-h, --help		Imprimir esta ayuda\n");
+	printf("\t-u, --username        Nombre de Usuario\n");
+	printf("\t-i, --useruid         Identificador de Usuario\n");
+	printf("\t-g, --groupname       Nombre de Grupo\n");
+	printf("\t-d, --groupuid        Identificador de Grupo\n");
+	printf("\t-s, --allgroups       Muestra info de todos los grupos del sistema\n");
+	printf("\t-a, --allinfo         Nombre de Usuario\n");
+	printf("\t-b, --bactive         Muestra info grupo usuario Actual\n");
 
 }
