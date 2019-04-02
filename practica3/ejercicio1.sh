@@ -14,8 +14,9 @@ echo "Tenemos $fileC ficheros con extension .c y $fileH con extension .h"
 
 for x in $(find $1 -name "*.c" -o -name "*.h")
 do
-        lineas=$(wc $x -l)
-        caracteres=$(wc $x -c)
+        lineas=$(wc $x -l | cut -d ' ' -f 1)
+
+        caracteres=$(wc $x -c |  cut -d ' ' -f 1)
 
         echo "El fichero $x tiene $lineas lineas y $caracteres caracteres"
 done | sort -nrk5
