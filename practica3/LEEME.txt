@@ -1,0 +1,188 @@
+Aclaraciones y ejemplos de ejecucion de codigo de Alejandro Bermudez Lara
+
+Ejercicio 1)
+
+En primer lugar compruebo que el numero de argumentos introducidos por el usuario sea correcto, y en caso afirmativo busco y asigno por nombre todos los archivos que terminen en .c o .h y los asigno a las variables que se ven. Con una tuberia uso el resultado despues asigno a la variable f todos los archivos que tengan la terminacion indicada y en un for recorro el contenido de $f y cuento el numero de lineas y caracteres que cada archivo tenga. Como solo nos interesan el numero de lineas y el numero de caracteres, borro todo lo que haya en las variables "lines" y "characters" hasta el primer espacio. Posteriormente ordeno la salida con una tuberia usando sort y -b, que ignora los espacios en blanco, -r le da la vuelta al orden (si esta de mayor a menor originalmente ahora estara de menor a mayor) y -k8 que selecciona la octava fila como criterio para ordenar
+
+Ejemplos de ejecucion de codigo:
+
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio1.sh 
+Ha introducido un número de argumentos erróneo. Sintaxis correcta: ./ejercicio1.sh <directorio>
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio1.sh ejemploCarpeta
+Tenemos 4 ficheros con extensión .c y 5 ficheros con extensión .h
+El archivo ejemploCarpeta/d1/audit.h tiene 463 lineas y 18221 caracteres
+El archivo ejemploCarpeta/d1/auditBackup.h tiene 463 lineas y 18221 caracteres
+El archivo ejemploCarpeta/d1/ecoc.h tiene 76 lineas y 2377 caracteres
+El archivo ejemploCarpeta/d1/auto_fs.h tiene 72 lineas y 2288 caracteres
+El archivo ejemploCarpeta/d1/compat.h tiene 17 lineas y 370 caracteres
+El archivo ejemploCarpeta/d2/prueba.c tiene 14 lineas y 233 caracteres
+El archivo ejemploCarpeta/d1/smo_routine.c tiene 8 lineas y 104 caracteres
+El archivo ejemploCarpeta/d1/svm_model_matlab.c tiene 6 lineas y 99 caracteres
+El archivo ejemploCarpeta/d1/d4/act_func.c tiene 5 lineas y 92 caracteres
+alex@ubuntu:~/linkFac/PAS/p1$ 
+
+Ejercicio 2)
+
+Me aseguro de que el numero de argumentos es el correcto pedido por el ejercicio no podra ser mayor de 2 o menor de 1. Si no se introducen los argumentos correctos, se indica como hacerlo. Con la opcion -d compruebo que el argumento pasado por teclado sea un directorio -e seria para comprobar si $1 existe, -s seria para comprobar que $1 tiene un tamanio mayor que cero, -f si es un fichero normal, -l si $1 es un enlace simbolico -r si se tienen permisos de lectura, -w si se tienen permisos de escritura -x si se tienen permisos de ejecucion.
+
+En caso de que no se pase el numero de bytes asigno a la varaible contenido todo el contenido del directorio. Asigno a CONTENIDO todos los archivos de mayor o igual tamanio que el argumento $2. Recorro la variable CONTENIDO con una bucle iterativo en el que extraigo el nombre del fichero sin la ruta con $basename, el numero de caracteres del nombre de usuario del propietario con stat y luego una tuberia para contar el numero de caracteres. Para averiguar la fecha de ultima modificacion, el ultimo acceso al fichero, el tamanio en bytes y numero de bloques que ocupa en memoria, asi como la cadena de permisos que ocupa en memoria con $y, %X, %s, %b, %A respectivamente. Por ultimo, ordeno segun el valor de la quinta fila y selecciona como separadores el simbolo ;
+
+Ejemplos de ejecucion de codigo:
+
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio2.sh 
+La sintaxis correcta para ejecutar este programa es: \> ./ejercicio2.sh <ejemploCarpeta> <numeroBytes(Opcional)>
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio2.sh ejemploCarpeta
+Nombre, LongitudUsuario, FechaModificacion, FechaAcceso, Tamano, Bloques, Permisos, Ejecutable
+disco2.png;5;2018-02-13 20:09:14.457277846 +0100;1520360130;23;0;lrwxrwxrwx;0
+act_func.c;5;2016-02-28 18:09:30.000000000 +0100;1520277012;92;8;-rw-------;0
+svm_model_matlab.c;5;2016-02-28 18:09:24.000000000 +0100;1520276961;99;8;-rw-------;0
+smo_routine.c;5;2016-02-28 18:09:21.000000000 +0100;1520276961;104;8;-rw-------;0
+prueba.c;5;2016-02-28 18:08:56.000000000 +0100;1520360483;233;8;-rw-------;0
+compat.h;5;2016-02-28 18:09:22.000000000 +0100;1520276961;370;8;-rw-------;0
+ejemploSuid.sh;5;2016-02-28 18:08:57.000000000 +0100;1520077578;483;8;-rw-------;0
+bcache.cpp;5;2016-02-28 18:09:31.000000000 +0100;1520277012;1233;8;-rw-------;0
+auto_fs.h;5;2016-02-28 18:09:26.000000000 +0100;1520276961;2288;8;-rw-------;0
+ecoc.h;5;2016-02-28 18:09:23.000000000 +0100;1520276961;2377;8;-rw-------;0
+fedora.png;5;2016-02-28 18:09:17.000000000 +0100;1520077578;2386;8;-rw-------;0
+debian.png;5;2016-02-28 18:09:16.000000000 +0100;1520077578;2626;8;-rw-------;0
+Carpeta1;5;2016-02-28 18:09:07.000000000 +0100;1520360130;4096;8;drwx------;1
+d1;5;2018-03-06 18:08:03.350888181 +0100;1520356083;4096;8;drwx------;1
+d2;5;2016-02-28 18:08:58.000000000 +0100;1520360130;4096;8;drwx------;1
+d3;5;2017-02-24 11:44:47.000000000 +0100;1520360130;4096;8;drwx------;1
+d4;5;2016-02-28 18:09:32.000000000 +0100;1520360130;4096;8;drwx------;1
+ejemploCarpeta;5;2018-03-06 18:57:21.454936889 +0100;1520359041;4096;8;drwx------;1
+images;5;2016-02-28 18:09:19.000000000 +0100;1520360130;4096;8;drwx------;1
+logos;5;2017-02-24 11:55:24.000000000 +0100;1520360130;4096;8;drwx------;1
+Teoria;5;2018-02-07 13:35:31.000000000 +0100;1520360130;4096;8;drwx------;1
+a2.out;5;2016-02-28 18:09:13.000000000 +0100;1520077578;7275;16;-rwx------;1
+a.out;5;2016-02-28 18:08:55.000000000 +0100;1520077578;7275;16;-rwx------;1
+eje2;5;2016-02-28 18:09:34.000000000 +0100;1520077578;7275;16;-rwx------;1
+centos.png;5;2016-02-28 18:09:16.000000000 +0100;1520077578;8215;24;-rw-------;0
+pirates.jpg;5;2016-02-28 18:09:06.000000000 +0100;1520077578;9836;24;-rw-------;0
+libhandle.so.1.0.3;5;2016-02-28 18:09:25.000000000 +0100;1520077578;10760;24;-rw-------;0
+Linus_torvalds.jpg;5;2016-02-28 18:09:04.000000000 +0100;1520077578;17670;40;-rw-------;0
+auditBackup.h;5;2017-02-24 11:46:53.000000000 +0100;1520276961;18221;40;-rw-------;0
+audit.h;5;2017-02-24 11:46:02.000000000 +0100;1520276961;18221;40;-rw-------;0
+Logo_uco.gif;5;2016-02-28 18:09:10.000000000 +0100;1520077578;20005;40;-rw-------;0
+devocion-administrador-de-sistemas.png;5;2016-02-28 18:09:07.000000000 +0100;1520077578;21613;48;-rw-------;0
+HD.png;5;2016-02-28 18:09:14.000000000 +0100;1520077578;36710;72;-rw-------;0
+libsysfs.so.2;5;2016-02-28 18:09:29.000000000 +0100;1520077578;38644;80;-rw-------;0
+richard-stallman.jpg;5;2016-02-28 18:09:05.000000000 +0100;1520077578;42999;88;-rw-------;0
+logo_eps_grande.jpg;5;2016-02-28 18:09:10.000000000 +0100;1520077578;43161;88;-rw-------;0
+raid0.png;5;2016-02-28 18:09:18.000000000 +0100;1520077578;50683;104;-rw-------;0
+elinfiernoexiste.jpg;5;2016-02-28 18:09:02.000000000 +0100;1520077578;119847;240;-rw-------;0
+libglib-2.0.so.0;5;2016-02-28 18:08:55.000000000 +0100;1520077578;822344;1608;-rw-------;0
+
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio2.sh ejemploCarpeta 5000
+Nombre, LongitudUsuario, FechaModificacion, FechaAcceso, Tamano, Bloques, Permisos, Ejecutable
+
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio2.sh ejemploCarpeta 500
+Nombre, LongitudUsuario, FechaModificacion, FechaAcceso, Tamano, Bloques, Permisos, Ejecutable
+libglib-2.0.so.0;5;2016-02-28 18:08:55.000000000 +0100;1520077578;822344;1608;-rw-------;0
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio2.sh ejemploCarpeta 50
+Nombre, LongitudUsuario, FechaModificacion, FechaAcceso, Tamano, Bloques, Permisos, Ejecutable
+HD.png;5;2016-02-28 18:09:14.000000000 +0100;1520077578;36710;72;-rw-------;0
+libsysfs.so.2;5;2016-02-28 18:09:29.000000000 +0100;1520077578;38644;80;-rw-------;0
+richard-stallman.jpg;5;2016-02-28 18:09:05.000000000 +0100;1520077578;42999;88;-rw-------;0
+logo_eps_grande.jpg;5;2016-02-28 18:09:10.000000000 +0100;1520077578;43161;88;-rw-------;0
+raid0.png;5;2016-02-28 18:09:18.000000000 +0100;1520077578;50683;104;-rw-------;0
+elinfiernoexiste.jpg;5;2016-02-28 18:09:02.000000000 +0100;1520077578;119847;240;-rw-------;0
+libglib-2.0.so.0;5;2016-02-28 18:08:55.000000000 +0100;1520077578;822344;1608;-rw-------;0
+
+Ejercicio 3)
+
+Controlo que el usuario nos proporcione al menos una direccion. Si el usuario proporciona umbral1, lo asigno a n, en su defecto n seria igual a 10000 tal y como indica la practica. Si el usuario proporciona umbral2, lo asigno a n, en su defecto n seria igual 100000 tal y como manda la practica. Mas adelante, compruebo que no exista previamente una carpeta con el nombre mediano, pequeno o grande.
+
+Realizada la comprobacion, recorro todos y cada uno de los elementos que se encuentran dentro de la carpeta que me ha sido pasada por terminal. Recorro todos los directorios y archivos que puedan encontrarse en el que me ha pasado el usuario calculando su tamanio. Si el elemento es menor que el umbral1 lo asigno a su debida carpeta, asi como si es mayor o esta entre medias. 
+
+Ejemplos de ejecucion de codigo:
+
+alex@ubuntu:~/linkFac/PAS/p3$ ./ejercicio3.sh 
+Numero de argumentos incorrecto. Ejecucion: ./ejercicio3.sh <ejemploCarpeta> <umbral1(opcional)> <umbral2(opcional)>
+alex@ubuntu:~/linkFac/PAS/p3$ ./ejercicio3.sh ejemploCarpeta
+Creando las carpetas pequenos, medianos y grandes...
+Creando las carpetas pequenos, medianos y grandes...
+Creando las carpetas pequenos, medianos y grandes...
+Creando las carpetas pequenos, medianos y grandes...
+Copiando los archivos...
+alex@ubuntu:~/linkFac/PAS/p3$ ls pequenos/
+a2.out      a.out      bcache.cpp  compat.h    ecoc.h  ejemploSuid.sh  pirates.jpg  smo_routine.c
+act_func.c  auto_fs.h  centos.png  debian.png  eje2    fedora.png      prueba.c     svm_model_matlab.c
+alex@ubuntu:~/linkFac/PAS/p3$ 
+
+
+
+Ejercicio 4)
+
+Averiguo el numero de archivos que hay con una profundidad 1, es decir, en el directorio actual, teniendo en cuenta solo archivos. Uno la salida de eso a wc --lines, que cuenta el numero de lineas para saber cuantos archivos hay. SE CUENTA A SI MISMO, por lo que dara un archivo de mas. Ordeno los nombres sin repetirlos con -u de unique. Establezo un limite de tiempo con el que limito al usuario la respuesta. Si el usuario ha introducido un caracter, lo busco por los directorios de manera que los enumero y con tr selecciono solo el elegido destruyendo los demas.
+
+Ejemplos de ejecucion de codigo:
+
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio4.sh 
+El numero de archivos en la carpeta actual es 11
+----------
+Esta seria la lista de usuarios conectados en este momentos: 
+alex
+----------
+¿Que caracter quieres contar? d
+El caracter d aparece 30 veces en nombres de ficheros o carpetas contenidas en la carpeta actual
+alex@ubuntu:~/linkFac/PAS/p1$ 
+
+
+Ejercicio 5)
+
+Compruebo errores, obtengo fecha actual en segundos desde el 1 de enero de 1970, creo el nombre de la copia de seguridad, comprimo todos los archivos o directorios pasados por la terminal y compruebo si ya existe la copia de seguridad. Una vez terminado todo este proceso,  muevo la copia de seguridad a la carpeta Copia y realizo la comprobacion de la creacion de la copia de seguridad
+
+Recorro todos los archivos de la carpeta copia y establezco en una variable la fehca de la ultima modificacion en segundos desde el 1 de enero de 1970 para luego poder restar las dos fechas sin problemas. Si la diferencia entre la fecha actual y la fecha de su ultima modificación es superior a 200 segundos, se elimina. Compruebo que no ha habido problemas en el proceso de borrado
+
+Ejemplos de ejecucion de codigo:
+
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio5.sh 
+Error en la llamada a la ejecución. Sintaxis correcta: ./ejercicio4.sh <directorio/fichero>
+alex@ubuntu:~/linkFac/PAS/p1$ ./ejercicio5.sh ejemploCarpeta
+Copia de seguridad creada correctamente
+alex@ubuntu:~/linkFac/PAS/p1$ cd
+alex@ubuntu:~$ ls
+Copia    Documents  examples.desktop  httpd-docs        linkFac  Pictures  Templates
+Desktop  Downloads  httpd             install-httpd.sh  Music    Public    Videos
+alex@ubuntu:~$ 
+
+
+Ejercicio 6)
+
+Dentro de la funcion que he creado llamada showHTML, uso un bucle iterativo con el que accedo recursivamente a todas y cada una de las carpetas en el interior de la indicada. Mas adelante, en la funcion principal, realizo los controles de error necesarios e imprimo el valor de un enlace simbolico con la direccion del directorio a partir del cual creo el HTML. Despues llamo a la funcion y desarrolla el HTML
+
+Ejemplos de ejecucion de codigo:
+
+alex@ubuntu:~/linkFac/PAS/p1/ejemploCarpeta$ ls
+d1  d2  d3  ejercicio6.sh  images
+alex@ubuntu:~/linkFac/PAS/p1/ejemploCarpeta$ ./ejercicio6.sh 
+Usted ha introducido un número erróneo de argumentos --> La sintaxis correcta del programa es: ./ejercicio6.sh <ejemploCarpeta>
+alex@ubuntu:~/linkFac/PAS/p1/ejemploCarpeta$ ./ejercicio6.sh d2
+Generando el listado de la carpeta /home/alex/Documents/Facultad/PAS/p1/ejemploCarpeta/d2 sobre el fichero d2.html...
+¡Terminado!
+alex@ubuntu:~/linkFac/PAS/p1/ejemploCarpeta$ cat d
+d1/      d2/      d2.html  d3/      
+alex@ubuntu:~/linkFac/PAS/p1/ejemploCarpeta$ cat d
+d1/      d2/      d2.html  d3/      
+alex@ubuntu:~/linkFac/PAS/p1/ejemploCarpeta$ cat d2.html 
+<html>
+<head>
+<title>d2</title>
+</head>
+<body>
+<h1>Listado del directorio ./d2/</h1>
+<ul>
+<li>./d2/a.out</li>
+
+<li>./d2/ejemploSuid.sh</li>
+
+<li>./d2/prueba.c</li>
+
+<li>./d2/libglib-2.0.so.0</li>
+
+<body><style type=text/css> body { font-family: sans-serif;} </style>
+alex@ubuntu:~/linkFac/PAS/p1/ejemploCarpeta$ 
+
+
+
